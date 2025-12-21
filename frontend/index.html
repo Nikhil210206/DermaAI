@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DermaAI</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-lg">
+        <h1 class="text-3xl font-bold mb-4 text-center text-blue-600">DermaAI</h1>
+        <p class="mb-4 text-gray-700">Upload an image to analyze.</p>
+        
+        <div id="upload-container" class="border-2 border-dashed border-gray-300 p-8 rounded-lg text-center cursor-pointer hover:bg-gray-50 transition">
+            <p>Click or drag image here</p>
+            <input type="file" id="file-input" class="hidden" accept="image/*">
+        </div>
+        
+        <div id="result" class="mt-4 hidden">
+            <h2 class="text-xl font-semibold">Result:</h2>
+            <p id="prediction" class="text-lg"></p>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
