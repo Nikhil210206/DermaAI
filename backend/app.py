@@ -7,38 +7,39 @@ from utils import preprocess_image
 
 app = FastAPI(title="Skin AI API", description="Skin Disease Detection API")
 
-# Enable CORS (Allows your frontend to talk to this backend)
+# Enable CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify your frontend URL
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Load Model Global Variable
+# Load Model
 model = None
 
-# Class Names (Must match training order)
+# --- CORRECTED CLASS MAPPING (Based on your training output) ---
 CLASSES = {
-    0: "Actinic Keratoses (akiec)",
-    1: "Basal Cell Carcinoma (bcc)",
-    2: "Benign Keratosis (bkl)",
-    3: "Dermatofibroma (df)",
-    4: "Melanoma (mel)",
-    5: "Melanocytic Nevi (nv)",
-    6: "Vascular Lesions (vasc)"
+    0: "Actinic Keratoses (Pre-cancerous)",
+    1: "Basal Cell Carcinoma (Cancer)",
+    2: "Benign Keratosis (Non-cancerous)",
+    3: "Dermatofibroma (Non-cancerous)",
+    4: "Melanocytic Nevi (Mole - Non-cancerous)",
+    5: "Melanoma (Cancer)",
+    6: "Vascular Lesions (Non-cancerous)"
 }
 
 @app.on_event("startup")
 async def load_model():
     global model
+    # Path to the model we just trained
     model_path = "../ml/model.h5"
     if os.path.exists(model_path):
         model = tf.keras.models.load_model(model_path)
-        print("Model loaded successfully.")
+        print(f"✅ Model loaded successfully from {model_path}")
     else:
-        print("Model file not found! Please run train_model.py")
+        print("❌ Model file not found! Check ml/model.h5")
 
 @app.get("/")
 def home():
@@ -58,8 +59,11 @@ async def predict(file: UploadFile = File(...)):
         
         # Predict
         predictions = model.predict(processed_image)
+        
+        # Get the highest confidence score
         confidence = float(np.max(predictions))
         class_id = int(np.argmax(predictions))
+        
         class_name = CLASSES.get(class_id, "Unknown")
         
         return {
@@ -68,4 +72,5 @@ async def predict(file: UploadFile = File(...)):
             "disclaimer": "AI-assisted screening only. Consult a doctor."
         }
     except Exception as e:
+        print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))

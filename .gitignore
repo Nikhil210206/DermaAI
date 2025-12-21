@@ -12,6 +12,9 @@ venv/
 # --- Project Specific: Data & Models ---
 # Ignore the dataset (it's too big for GitHub)
 ml/data/
+ml/processed_data/
+ml/model.h5
+backend/model.h5
 
 # Ignore the trained model (large binary file)
 # If you want to share the model later, we use tools like Git LFS
