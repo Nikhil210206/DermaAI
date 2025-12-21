@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DermaAI - Skin Disease Detection</title>
+    <title>DermaAI - Smart Skin Screening</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         .loader {
-            border-top-color: #3498db;
+            border-top-color: #3b82f6;
             -webkit-animation: spinner 1.5s linear infinite;
             animation: spinner 1.5s linear infinite;
         }
@@ -20,64 +20,90 @@
 </head>
 <body class="bg-slate-50 font-sans text-slate-800">
 
-    <nav class="bg-white shadow-md">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-2">
                 <i class="fa-solid fa-heart-pulse text-blue-600 text-2xl"></i>
                 <h1 class="text-xl font-bold text-slate-800">Derma<span class="text-blue-600">AI</span></h1>
             </div>
-            <a href="#about" class="text-sm text-slate-500 hover:text-blue-600">About</a>
+            <span class="text-xs font-semibold bg-blue-100 text-blue-800 py-1 px-2 rounded-full">v2.0 Camera Ready</span>
         </div>
     </nav>
 
-    <main class="max-w-xl mx-auto mt-10 px-4 pb-20">
+    <main class="max-w-xl mx-auto mt-4 px-4 pb-20">
         
-        <div class="text-center mb-8">
-            <h2 class="text-3xl font-bold mb-2">AI Skin Screening</h2>
-            <p class="text-slate-500">Upload a clear image of a skin lesion for preliminary AI analysis.</p>
+        <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold mb-1">Skin Screening</h2>
+            <p class="text-sm text-slate-500">Take a photo or upload an image.</p>
         </div>
 
-        <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100">
-            
-            <div id="drop-zone" class="border-2 border-dashed border-blue-200 rounded-xl p-8 text-center hover:bg-blue-50 transition cursor-pointer relative">
-                <input type="file" id="file-input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*">
-                <div id="upload-prompt">
-                    <i class="fa-solid fa-cloud-arrow-up text-4xl text-blue-400 mb-3"></i>
-                    <p class="font-semibold text-slate-600">Tap to Upload</p>
-                    <p class="text-xs text-slate-400 mt-1">or drag and drop image here</p>
-                </div>
-                <img id="image-preview" class="hidden max-h-64 mx-auto rounded-lg shadow-sm" alt="Skin preview">
-            </div>
-
-            <button id="analyze-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-xl mt-6 hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
-                Analyze Image
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <button id="camera-btn" class="bg-slate-800 text-white py-4 rounded-xl shadow-lg hover:bg-slate-700 transition flex flex-col items-center justify-center gap-1">
+                <i class="fa-solid fa-camera text-2xl"></i>
+                <span class="font-semibold text-sm">Take Photo</span>
             </button>
+
+            <label for="file-input" class="bg-white border-2 border-slate-200 text-slate-700 py-4 rounded-xl shadow-sm hover:border-blue-400 hover:bg-blue-50 transition cursor-pointer flex flex-col items-center justify-center gap-1">
+                <i class="fa-solid fa-upload text-2xl text-blue-500"></i>
+                <span class="font-semibold text-sm">Upload File</span>
+            </label>
+            <input type="file" id="file-input" class="hidden" accept="image/*">
         </div>
 
-        <div id="loading" class="hidden mt-8 text-center">
-            <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-10 w-10 mb-4 mx-auto"></div>
-            <p class="text-slate-500">Processing image...</p>
-        </div>
-
-        <div id="result-container" class="hidden mt-6 bg-white p-6 rounded-2xl shadow-lg border-l-4 border-blue-500">
-            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">Prediction</h3>
-            <p id="disease-name" class="text-2xl font-bold text-slate-800 mb-2">Melanoma</p>
+        <div id="camera-section" class="hidden flex-col items-center bg-black rounded-2xl overflow-hidden shadow-2xl mb-6 relative">
+            <video id="video-feed" autoplay playsinline class="w-full h-80 object-cover"></video>
             
-            <div class="mt-4">
-                <div class="flex justify-between text-xs mb-1">
-                    <span>Confidence</span>
-                    <span id="confidence-score">87%</span>
-                </div>
-                <div class="w-full bg-slate-200 rounded-full h-2.5">
-                    <div id="confidence-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+            <div class="absolute bottom-4 left-0 right-0 flex justify-center items-center gap-4">
+                <button id="capture-btn" class="bg-white p-1 rounded-full shadow-lg transform active:scale-95 transition">
+                    <div class="w-14 h-14 bg-red-500 rounded-full border-4 border-white"></div>
+                </button>
+                <button id="close-camera" class="bg-gray-800/80 text-white p-3 rounded-full shadow-lg absolute right-4">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <canvas id="canvas" class="hidden"></canvas>
+        </div>
+
+        <div id="preview-section" class="hidden bg-white p-4 rounded-2xl shadow-lg border border-slate-100 mb-6 relative">
+            <button id="clear-preview" class="absolute top-2 right-2 bg-slate-100 text-slate-500 w-8 h-8 rounded-full hover:bg-red-100 hover:text-red-500 transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <img id="image-display" class="w-full max-h-80 object-contain rounded-lg mx-auto" alt="Preview">
+            <p class="text-center text-xs text-slate-400 mt-2">Ready to analyze</p>
+        </div>
+
+        <button id="analyze-btn" class="w-full bg-blue-600 text-white font-bold py-4 px-4 rounded-xl shadow-xl shadow-blue-200 hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed mb-8 hidden">
+            Run AI Analysis
+        </button>
+
+        <div id="loading" class="hidden text-center py-8">
+            <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-200 h-10 w-10 mb-3 mx-auto"></div>
+            <p class="text-sm font-semibold text-slate-600 animate-pulse">Consulting AI Model...</p>
+        </div>
+
+        <div id="result-card" class="hidden bg-white p-6 rounded-2xl shadow-xl border-t-4 border-blue-500 transition-all">
+            
+            <div class="text-center mb-6">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Diagnosis</p>
+                <h2 id="result-title" class="text-2xl font-bold text-slate-800 mt-1">Acne</h2>
+                <div class="flex justify-center items-center gap-2 mt-2">
+                    <div class="w-full max-w-[200px] bg-slate-100 rounded-full h-2.5">
+                        <div id="confidence-bar" class="bg-blue-500 h-2.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                    <span id="confidence-text" class="text-xs font-bold text-slate-500">0%</span>
                 </div>
             </div>
 
-            <div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-start space-x-3">
-                <i class="fa-solid fa-triangle-exclamation text-yellow-600 mt-1"></i>
+            <div id="alternatives-container" class="hidden border-t border-slate-100 pt-4 mb-4">
+                <p class="text-xs text-slate-400 mb-2 font-semibold">Other possibilities:</p>
+                <ul id="alternatives-list" class="space-y-2 text-sm text-slate-600">
+                    </ul>
+            </div>
+
+            <div class="bg-yellow-50 border border-yellow-100 rounded-lg p-3 flex gap-3">
+                <i class="fa-solid fa-circle-exclamation text-yellow-500 mt-1"></i>
                 <p class="text-xs text-yellow-800 leading-relaxed">
-                    <strong>Medical Disclaimer:</strong> This result is generated by AI and is NOT a medical diagnosis. 
-                    This tool has limitations and can make errors. Always consult a certified dermatologist for diagnosis.
+                    <strong>Note:</strong> AI accuracy is ~75%. This is not a medical diagnosis. Please consult a doctor.
                 </p>
             </div>
         </div>

@@ -1,115 +1,175 @@
+// --- DOM ELEMENTS ---
 const fileInput = document.getElementById('file-input');
-const imagePreview = document.getElementById('image-preview');
-const uploadPrompt = document.getElementById('upload-prompt');
+const cameraBtn = document.getElementById('camera-btn');
+const closeCameraBtn = document.getElementById('close-camera');
+const captureBtn = document.getElementById('capture-btn');
 const analyzeBtn = document.getElementById('analyze-btn');
+const clearPreviewBtn = document.getElementById('clear-preview');
+
+const cameraSection = document.getElementById('camera-section');
+const previewSection = document.getElementById('preview-section');
+const resultCard = document.getElementById('result-card');
 const loading = document.getElementById('loading');
-const resultContainer = document.getElementById('result-container');
-const diseaseName = document.getElementById('disease-name');
-const confidenceScore = document.getElementById('confidence-score');
+
+const videoFeed = document.getElementById('video-feed');
+const canvas = document.getElementById('canvas');
+const imageDisplay = document.getElementById('image-display');
+
+const resultTitle = document.getElementById('result-title');
 const confidenceBar = document.getElementById('confidence-bar');
+const confidenceText = document.getElementById('confidence-text');
+const alternativesContainer = document.getElementById('alternatives-container');
+const alternativesList = document.getElementById('alternatives-list');
 
-let selectedFile = null;
+let stream = null;
+let currentFile = null;
 
-// Handle File Selection
+// --- 1. FILE UPLOAD HANDLER ---
 fileInput.addEventListener('change', function(e) {
     if (e.target.files && e.target.files[0]) {
-        selectedFile = e.target.files[0];
-        
-        // Show Preview
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            imagePreview.src = e.target.result;
-            imagePreview.classList.remove('hidden');
-            uploadPrompt.classList.add('hidden');
-        }
-        reader.readAsDataURL(selectedFile);
+        console.log("File selected:", e.target.files[0].name);
+        currentFile = e.target.files[0];
+        showPreview(currentFile);
+        stopCamera();
     }
 });
 
-// Handle Analysis
-analyzeBtn.addEventListener('click', async () => {
-    if (!selectedFile) {
-        alert("Please select an image first.");
-        return;
+// --- 2. CAMERA HANDLERS ---
+cameraBtn.addEventListener('click', async () => {
+    console.log("Opening camera...");
+    resetUI();
+    cameraSection.classList.remove('hidden');
+    
+    try {
+        // Ask for rear camera on mobile
+        stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: "environment" } 
+        });
+        videoFeed.srcObject = stream;
+    } catch (err) {
+        console.error("Camera Error:", err);
+        alert("Camera access denied or not available.");
+        cameraSection.classList.add('hidden');
     }
+});
 
-    // UI Updates
-    analyzeBtn.disabled = true;
+closeCameraBtn.addEventListener('click', stopCamera);
+
+captureBtn.addEventListener('click', () => {
+    // Capture frame to canvas
+    const context = canvas.getContext('2d');
+    canvas.width = videoFeed.videoWidth;
+    canvas.height = videoFeed.videoHeight;
+    context.drawImage(videoFeed, 0, 0, canvas.width, canvas.height);
+
+    // Convert to file
+    canvas.toBlob((blob) => {
+        currentFile = new File([blob], "camera_snap.jpg", { type: "image/jpeg" });
+        console.log("Photo captured");
+        showPreview(currentFile);
+        stopCamera();
+    }, 'image/jpeg');
+});
+
+function stopCamera() {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        stream = null;
+    }
+    cameraSection.classList.add('hidden');
+}
+
+// --- 3. PREVIEW LOGIC ---
+function showPreview(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        imageDisplay.src = e.target.result;
+        previewSection.classList.remove('hidden');
+        analyzeBtn.classList.remove('hidden');
+        
+        // Scroll to analyze button
+        analyzeBtn.scrollIntoView({ behavior: 'smooth' });
+    }
+    reader.readAsDataURL(file);
+}
+
+clearPreviewBtn.addEventListener('click', resetUI);
+
+function resetUI() {
+    currentFile = null;
+    fileInput.value = "";
+    previewSection.classList.add('hidden');
+    resultCard.classList.add('hidden');
+    analyzeBtn.classList.add('hidden');
+    stopCamera();
+}
+
+// --- 4. API CALL (AI ANALYSIS) ---
+analyzeBtn.addEventListener('click', async () => {
+    if (!currentFile) return;
+
+    // UI State: Loading
+    analyzeBtn.classList.add('hidden');
     loading.classList.remove('hidden');
-    resultContainer.classList.add('hidden');
+    resultCard.classList.add('hidden');
 
-    // Prepare Data
     const formData = new FormData();
-    formData.append('file', selectedFile);
+    formData.append('file', currentFile);
 
     try {
-        // IMPORTANT: Update this URL to your deployed backend URL later
-        // For local development, use http://127.0.0.1:8000/predict
+        // ⚠️ CHANGE URL IF DEPLOYED
+        // Local: 'http://127.0.0.1:8000/predict'
+        // Render: 'https://your-app-name.onrender.com/predict'
         const response = await fetch('http://127.0.0.1:8000/predict', {
             method: 'POST',
             body: formData
         });
 
-        if (!response.ok) throw new Error('Prediction failed');
-
+        if (!response.ok) throw new Error("Backend Error");
+        
         const data = await response.json();
-
-        // Display Results
+        console.log("AI Result:", data);
         displayResult(data);
 
     } catch (error) {
         console.error(error);
-        alert("Error analyzing image. Ensure backend is running.");
+        alert("Server Error: Ensure Backend is running (uvicorn app:app)");
+        analyzeBtn.classList.remove('hidden');
     } finally {
-        analyzeBtn.disabled = false;
         loading.classList.add('hidden');
     }
 });
 
+// --- 5. DISPLAY RESULTS ---
 function displayResult(data) {
-    resultContainer.classList.remove('hidden');
-    resultContainer.scrollIntoView({ behavior: 'smooth' });
+    resultCard.classList.remove('hidden');
+    resultCard.scrollIntoView({ behavior: 'smooth' });
 
-    // 1. Main Prediction
-    diseaseName.textContent = data.disease;
+    // Title
+    resultTitle.textContent = data.disease;
     
-    const percentage = (data.confidence * 100).toFixed(1) + "%";
-    confidenceScore.textContent = percentage;
-    confidenceBar.style.width = percentage;
+    // Confidence Bar
+    const percent = Math.round(data.confidence * 100);
+    confidenceText.textContent = percent + "%";
+    confidenceBar.style.width = percent + "%";
 
-    // Color logic
-    confidenceBar.className = 'h-2.5 rounded-full transition-all duration-500'; // Reset classes
-    if (data.confidence > 0.85) {
-        confidenceBar.classList.add('bg-green-500'); // High confidence
-    } else if (data.confidence > 0.60) {
-        confidenceBar.classList.add('bg-blue-500');  // Medium confidence
-    } else {
-        confidenceBar.classList.add('bg-yellow-500'); // Low confidence (Check alternatives)
-    }
+    // Color Coding
+    confidenceBar.className = "h-2.5 rounded-full transition-all duration-500"; // Reset
+    if (percent > 80) confidenceBar.classList.add("bg-green-500");
+    else if (percent > 50) confidenceBar.classList.add("bg-blue-500");
+    else confidenceBar.classList.add("bg-yellow-500");
 
-    // 2. Show Alternatives (New Feature)
-    // Check if we already have an alternatives list, if not create it
-    let altList = document.getElementById('alt-list');
-    if (!altList) {
-        const altContainer = document.createElement('div');
-        altContainer.className = "mt-4 pt-4 border-t border-slate-100";
-        altContainer.innerHTML = `<p class="text-xs text-slate-400 mb-2">Other possibilities:</p><ul id="alt-list" class="space-y-1 text-sm text-slate-600"></ul>`;
-        
-        // Insert before the disclaimer
-        const disclaimer = resultContainer.querySelector('.bg-yellow-50');
-        resultContainer.insertBefore(altContainer, disclaimer);
-        altList = document.getElementById('alt-list');
-    }
-    
-    // Populate Alternatives
-    altList.innerHTML = '';
+    // Alternatives
+    alternativesList.innerHTML = "";
     if (data.alternatives && data.alternatives.length > 0) {
+        alternativesContainer.classList.remove('hidden');
         data.alternatives.forEach(alt => {
             const li = document.createElement('li');
-            li.innerHTML = `<span class="font-medium">${alt.disease}</span> <span class="text-slate-400">(${alt.probability})</span>`;
-            altList.appendChild(li);
+            li.className = "flex justify-between";
+            li.innerHTML = `<span>${alt.disease}</span> <span class="text-slate-400">${alt.probability}</span>`;
+            alternativesList.appendChild(li);
         });
     } else {
-        altList.innerHTML = '<li class="text-slate-400 italic">No other likely matches.</li>';
+        alternativesContainer.classList.add('hidden');
     }
 }
