@@ -1,0 +1,28 @@
+# --- System Files (Mac & OS) ---
+.DS_Store
+Thumbs.db
+
+# --- Python & Virtual Environment ---
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# --- Project Specific: Data & Models ---
+# Ignore the dataset (it's too big for GitHub)
+ml/data/
+
+# Ignore the trained model (large binary file)
+# If you want to share the model later, we use tools like Git LFS
+*.h5
+*.keras
+ml/model.h5
+backend/model.h5
+
+# --- IDE Settings (VS Code, Pycharm) ---
+.vscode/
+.idea/
+
+# --- Logs ---
+*.log
