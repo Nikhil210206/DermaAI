@@ -120,7 +120,7 @@ analyzeBtn.addEventListener('click', async () => {
         // ⚠️ CHANGE URL IF DEPLOYED
         // Local: 'http://127.0.0.1:8000/predict'
         // Render: 'https://your-app-name.onrender.com/predict'
-        const response = await fetch('http://127.0.0.1:8000/predict', {
+        const response = await fetch('https://dermaai-0h90.onrender.com/', {
             method: 'POST',
             body: formData
         });
