@@ -1,22 +1,61 @@
-# DermaAI
+# 🔬 DermaAI - Smart Skin Disease Detection
 
-## Project Structure
-- **ml/**: The Brains (Machine Learning)
-  - `data/`: [EMPTY] Put HAM10000 images here
-  - `model.h5`: The saved brain (created by train_model.py)
-  - `train_model.py`: The teacher script
-- **backend/**: The Server (FastAPI)
-  - `app.py`: Main server file
-  - `utils.py`: Image processing helper
-  - `requirements.txt`: List of python libraries needed
-- **frontend/**: The Face (Website)
-  - `index.html`: The structure of the site
-  - `styles.css`: (Optional) we used Tailwind via CDN
-  - `script.js`: The logic (talks to backend)
+![Status](https://img.shields.io/badge/Status-Production-success)
+![Tech Stack](https://img.shields.io/badge/Stack-FastAPI%20|%20TensorFlow%20|%20JS-blue)
+![Mobile](https://img.shields.io/badge/Mobile-Camera%20Ready-orange)
 
-## Setup
-1. Create a virtual environment: `python -m venv venv`
-2. Activate it: `source venv/bin/activate` (Mac/Linux) or `venv\Scripts\activate` (Windows)
-3. Install backend requirements: `pip install -r backend/requirements.txt`
-4. Run backend: `uvicorn backend.app:app --reload`
-5. Open `frontend/index.html` in your browser.
+**DermaAI** is an end-to-end medical AI application capable of classifying **12 different skin diseases** with ~80% accuracy. It uses a custom-trained **EfficientNetB1** model and features a mobile-responsive UI with real-time camera integration.
+
+🔗 **Live Demo:** [PASTE YOUR VERCEL LINK HERE]
+
+---
+
+## 🚀 Key Features
+* **Multi-Class Diagnosis:** Detects 12 conditions including Acne, Melanoma, Eczema, and Psoriasis.
+* **Advanced AI Model:** Powered by **EfficientNetB1** using Transfer Learning, trained on a merged dataset of ~16,000 clinical and dermoscopic images.
+* **Imbalance Handling:** Implements automated **Class Weights** to accurately detect rare diseases (e.g., Cancer) despite dataset imbalance.
+* **Mobile-First Design:** Built-in camera support allows users to analyze skin lesions directly from their phone.
+* **Smart Analysis:** Provides a top prediction along with "Second Best Guesses" and confidence scores.
+
+---
+
+## 🛠️ Tech Stack
+* **Frontend:** HTML5, Tailwind CSS, Vanilla JavaScript (Hosted on **Vercel**)
+* **Backend:** Python 3.10, FastAPI, Uvicorn (Hosted on **Render**)
+* **Machine Learning:** TensorFlow/Keras, NumPy, Pillow, EfficientNetB1
+* **Tools:** Git, Docker (optional), Postman
+
+---
+
+## 🏥 Diseases Detected
+The model is trained to recognize the following 12 classes:
+1.  **Acne**
+2.  **Actinic Keratoses** (Pre-cancerous)
+3.  **Basal Cell Carcinoma** (Cancer)
+4.  **Benign Keratosis**
+5.  **Dermatofibroma**
+6.  **Eczema**
+7.  **Melanocytic Nevi** (Mole)
+8.  **Melanoma** (Cancer)
+9.  **Nail Fungus**
+10. **Psoriasis**
+11. **Ringworm** (Fungal)
+12. **Vascular Lesions**
+
+---
+
+## 📸 Screenshots
+*(Add screenshots of your app here!)*
+
+| Desktop View | Mobile Camera View |
+|:---:|:---:|
+| ![Desktop](https://via.placeholder.com/300x200?text=Upload+Screen) | ![Mobile](https://via.placeholder.com/150x300?text=Camera+UI) |
+
+---
+
+## ⚙️ How to Run Locally
+
+### 1. Clone the Repository
+```bash
+git clone [https://github.com/YOUR_USERNAME/DermaAI.git](https://github.com/YOUR_USERNAME/DermaAI.git)
+cd DermaAI
