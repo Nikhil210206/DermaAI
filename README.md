@@ -4,7 +4,7 @@
 ![Tech Stack](https://img.shields.io/badge/Stack-FastAPI%20|%20TensorFlow%20|%20JS-blue)
 ![Mobile](https://img.shields.io/badge/Mobile-Camera%20Ready-orange)
 
-**DermaAI** is an end-to-end medical AI application capable of classifying **12 different skin diseases** with ~80% accuracy. It uses a custom-trained **EfficientNetB1** model and features a mobile-responsive UI with real-time camera integration.
+**DermaAI** is an end-to-end medical AI application capable of classifying **12 different skin diseases**. It uses a custom-trained **EfficientNetB1** model and features a mobile-responsive UI with real-time camera integration.
 
 🔗 **Live Demo:** [PASTE YOUR VERCEL LINK HERE]
 
@@ -23,7 +23,6 @@
 * **Frontend:** HTML5, Tailwind CSS, Vanilla JavaScript (Hosted on **Vercel**)
 * **Backend:** Python 3.10, FastAPI, Uvicorn (Hosted on **Render**)
 * **Machine Learning:** TensorFlow/Keras, NumPy, Pillow, EfficientNetB1
-* **Tools:** Git, Docker (optional), Postman
 
 ---
 
@@ -45,11 +44,11 @@ The model is trained to recognize the following 12 classes:
 ---
 
 ## 📸 Screenshots
-*(Add screenshots of your app here!)*
 
-| Desktop View | Mobile Camera View |
+| Desktop View | |
 |:---:|:---:|
-| ![Desktop](https://via.placeholder.com/300x200?text=Upload+Screen) | ![Mobile](https://via.placeholder.com/150x300?text=Camera+UI) |
+| ![Desktop](<img width="2940" height="1500" alt="image" src="https://github.com/user-attachments/assets/7300f52c-09a6-4ace-a108-cc5b6ee570a2" />
+) 
 
 ---
 
