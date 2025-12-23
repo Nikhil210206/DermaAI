@@ -7,8 +7,8 @@
 **DermaAI** is an end-to-end medical AI application capable of classifying **12 different skin diseases**. It uses a custom-trained **EfficientNetB1** model and features a mobile-responsive UI with real-time camera integration.
 
 **Live Demo:** 
-start the backend first - https://dermaai-0h90.onrender.com
-frontend - https://derma-ai-ten.vercel.app
+* start the backend first - https://dermaai-0h90.onrender.com
+* frontend - https://derma-ai-ten.vercel.app
 
 ---
 
