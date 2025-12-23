@@ -47,8 +47,8 @@ The model is trained to recognize the following 12 classes:
 
 | Desktop View | |
 |:---:|:---:|
-| ![Desktop](<img width="2940" height="1500" alt="image" src="https://github.com/user-attachments/assets/7300f52c-09a6-4ace-a108-cc5b6ee570a2" />
-) 
+| ![Desktop]<img width="2940" height="1500" alt="image" src="https://github.com/user-attachments/assets/7300f52c-09a6-4ace-a108-cc5b6ee570a2" />
+
 
 ---
 
